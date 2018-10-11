@@ -59,7 +59,17 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> implements ISy
 
     @Override
     public Value get(Key key) {
-        return find(root, key);
+    	Node node = root;
+
+    	while (true) {
+    		if (node == null) return null;
+    		int compare = key.compareTo(node.key);
+    		if (compare < 0) node = node.left;
+    		else if (compare > 0) node = node.right;
+    		else break;
+    	}
+    	
+    	return node.value;
     }
 
     private Value find(Node node, Key key) {
@@ -157,16 +167,15 @@ public class BinarySearchTree<Key extends Comparable<Key>, Value> implements ISy
 
     @Override
     public Iterable<Key> keys() {
-        Deque<Key> queue = new ArrayDeque<>();
+        MyQueue<Key> queue = new MyQueue<>();
         keys(root, queue);
         return queue;
     }
 
-    private void keys(Node node, Deque<Key> queue) {
+    private void keys(Node node, MyQueue<Key> queue) {
         if (node == null) return;
         keys(node.left, queue);
-        queue.addLast(node.key);
+        queue.enqueue(node.key);
         keys(node.right, queue);
     }
-
 }
