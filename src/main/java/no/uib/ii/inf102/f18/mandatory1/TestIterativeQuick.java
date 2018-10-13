@@ -3,12 +3,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-class IterativeQuickTest {
+class TestIterativeQuick {
 
 	@Test
 	void test() {
 		IterativeQuick iq = new IterativeQuick();
-		Integer[] arr = {1, 2, 3, 5, 3};
+		Integer[] arr = {1, 2, 3, 5, 3, 99, 55, 44, 22};
 		iq.sort(arr);
 		
 		Integer prev = arr[0];
