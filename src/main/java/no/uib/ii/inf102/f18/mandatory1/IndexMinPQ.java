@@ -1,12 +1,13 @@
 package no.uib.ii.inf102.f18.mandatory1;
 
-public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
+public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	private int N;
 	private int[] indices;
 	private int[] pq;
-	private Comparable[] keys;
+	private Key[] keys;
 	
-	public IndexMinPq(int maxN) {
+	@SuppressWarnings("unchecked")
+	public IndexMinPQ(int maxN) {
 		keys = (Key[]) new Comparable[maxN + 1];
 		indices = new int[maxN + 1];
 		pq = new int[maxN + 1];
@@ -14,7 +15,7 @@ public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
 	}
 	
 	@Override
-	public void add(int index, Comparable key) {
+	public void add(int index, Key key) {
 		if (this.contains(index)) 
 			throw new IllegalStateException("Index already in use");
 		
@@ -25,7 +26,7 @@ public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
 	}
 
 	@Override
-	public void changeKey(int index, Comparable key) {
+	public void changeKey(int index, Key key) {
 		if (!this.contains(index)) 
 			throw new IllegalStateException("Index not in use");
 		
@@ -35,11 +36,16 @@ public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
 
 	@Override
 	public boolean contains(int index) {
+		if (index < 0 || index >= keys.length) {
+			throw new IllegalArgumentException("Invalid index");
+		}
 		return indices[index] != -1;
 	}
 
 	@Override
 	public void delete(int index) {
+		if (!this.contains(index))
+			throw new IllegalStateException("Index not in use");
 		keys[index] = null;
 		int i = indices[index];
 		swap(i, N--);
@@ -48,7 +54,7 @@ public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
 	}
 
 	@Override
-	public Comparable getKey(int index) {
+	public Key getKey(int index) {
 		if (!this.contains(index))
 			throw new IllegalStateException("Index not in use");
 		
@@ -56,13 +62,15 @@ public class IndexMinPq<Key extends Comparable<Key>> implements IIndexPQ {
 	}
 
 	@Override
-	public Comparable peekKey() {
-		if (indices[pq[1]] == -1) return null;
+	public Key peekKey() {
+		if (isEmpty()) return null;
 		return keys[pq[1]];
 	}
 
 	@Override
 	public int peek() {
+		if (isEmpty())
+			return -1;
 		return pq[1];
 	}
 
