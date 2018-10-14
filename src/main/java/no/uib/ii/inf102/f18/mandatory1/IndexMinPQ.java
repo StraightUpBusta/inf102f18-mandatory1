@@ -2,12 +2,16 @@ package no.uib.ii.inf102.f18.mandatory1;
 
 public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	private int N;
+	int maxN;
 	private int[] indices;
 	private int[] pq;
 	private Key[] keys;
 	
 	@SuppressWarnings("unchecked")
 	public IndexMinPQ(int maxN) {
+		if (maxN < 0)
+			throw new IllegalArgumentException("Size can not be negative");
+		this.maxN = maxN;
 		keys = (Key[]) new Comparable[maxN + 1];
 		indices = new int[maxN + 1];
 		pq = new int[maxN + 1];
@@ -18,10 +22,10 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	public void add(int index, Key key) {
 		if (this.contains(index)) 
 			throw new IllegalStateException("Index already in use");
-		
-		keys[index] = key;
-		indices[index] = ++N;
+		++N;
+		indices[index] = N;
 		pq[N] = index;
+		keys[index] = key;
 		swim(N);
 	}
 
@@ -29,16 +33,15 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	public void changeKey(int index, Key key) {
 		if (!this.contains(index)) 
 			throw new IllegalStateException("Index not in use");
-		
-		this.delete(index);
-		this.add(index, key);
+		keys[index] = key;
+		swim(indices[index]);
+		sink(indices[index]);
 	}
 
 	@Override
 	public boolean contains(int index) {
-		if (index < 0 || index >= keys.length) {
-			throw new IllegalArgumentException("Invalid index");
-		}
+		if (index < 0 || index >= maxN)
+			throw new IllegalArgumentException("Index out of range");
 		return indices[index] != -1;
 	}
 
@@ -46,30 +49,29 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	public void delete(int index) {
 		if (!this.contains(index))
 			throw new IllegalStateException("Index not in use");
-		keys[index] = null;
 		int i = indices[index];
 		swap(i, N--);
+		swim(i);
 		sink(i);
+		keys[index] = null;
 		indices[index] = -1;
 	}
 
 	@Override
 	public Key getKey(int index) {
-		if (!this.contains(index))
-			throw new IllegalStateException("Index not in use");
-		
 		return keys[index];
 	}
 
 	@Override
 	public Key peekKey() {
-		if (isEmpty()) return null;
+		if (isEmpty()) 
+			return null;
 		return keys[pq[1]];
 	}
 
 	@Override
 	public int peek() {
-		if (isEmpty())
+		if (isEmpty()) 
 			return -1;
 		return pq[1];
 	}
@@ -78,9 +80,8 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 	public int poll() {
 		if (isEmpty()) 
 			return -1;
-		
 		int ret = pq[1];
-		this.delete(ret);
+		delete(ret);
 		return ret;
 	}
 
@@ -106,7 +107,7 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements IIndexPQ<Key> {
 			int l = 2*k;
 			if (l < N && less(l+1, l)) l++;
 			if (less(k, l)) break;
-			swap(l, k);
+			swap(k, l);
 			k = l;
 		}
 	}
